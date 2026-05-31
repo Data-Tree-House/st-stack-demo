@@ -14,3 +14,6 @@ rebuild:
 
 logs:
 	docker compose logs -f
+
+sync:
+	uv sync --all-extras --dev

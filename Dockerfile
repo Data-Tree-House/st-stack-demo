@@ -28,6 +28,13 @@ FROM base-builder AS api-builder
 RUN . /opt/venv/bin/activate && \
     uv pip install --no-cache ".[api]"
 
+# =============== // STAGE 2(C) // ===============
+# =========== // CLI DEPS BUILDER // =============
+FROM base-builder AS cli-builder
+
+RUN . /opt/venv/bin/activate && \
+    uv pip install --no-cache ".[cli]"
+
 # =============== // STAGE 3(A) // ===============
 # =========== // STREAMLIT RUNTIME // ============
 FROM python:3.14-slim AS streamlit
@@ -89,3 +96,25 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 WORKDIR /app/src
 
 ENTRYPOINT ["fastapi", "run", "main-api.py", "--port", "8000", "--host", "0.0.0.0"]
+
+# =============== // STAGE 3(C) // ===============
+# ============ // CLI (CRON) RUNTIME // ==========
+FROM python:3.14-slim AS cli
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends cron && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+
+COPY --from=cli-builder /opt/venv /opt/venv
+
+COPY . .
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY config/crontab /etc/cron.d/app-cron
+RUN chmod 0644 /etc/cron.d/app-cron
+
+ENTRYPOINT ["cron", "-f"]

@@ -34,6 +34,10 @@ api = [
     "sqlmodel>=0.0.38, <1.0.0",
     "email-validator>=2.3.0, <3.0.0",
 ]
+# pip install ".[cli]"
+cli = [
+    "typer>=0.15.0, <1.0.0",
+]
 
 
 [build-system]

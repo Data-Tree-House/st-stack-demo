@@ -35,3 +35,10 @@ services:
       - ../files/app/secrets.toml:/app/src/.streamlit/secrets.toml:ro
     restart: unless-stopped
     stop_grace_period: 60s
+
+  cron:
+    build:
+      context: .
+      target: cli
+    env_file: .env
+    restart: unless-stopped
