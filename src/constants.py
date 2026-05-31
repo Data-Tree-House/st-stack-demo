@@ -1,4 +1,4 @@
-from datetime import tzinfo
+from datetime import tzinfo  # noqa
 from pathlib import Path
 
 import pytz

@@ -10,7 +10,7 @@ from constants import c
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # noqa
     logger.debug("Starting Server 🚀")
     yield
     logger.warning("Shutting down gracefully...")

@@ -51,7 +51,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install lint dependencies
-        run: uv sync --group lint
+        run: uv sync --all-extras --group lint
 
       - name: Run ty
         run: uv run ty check
