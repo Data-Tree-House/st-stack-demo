@@ -1,44 +1,53 @@
-# Multi-stage build for minimal Streamlit image
-# Stage 1: Builder - install dependencies
-FROM python:3.14-slim AS builder
+# ==================== // STAGE 1 // =====================
+# ======= // Base builder: shared dependencies // ========
+
+# Both apps inherit from this stage, so the shared layer is only downloaded once.
+FROM python:3.14-slim AS base-builder
 
 WORKDIR /app
 
-# Install uv for faster dependency resolution and installation
 RUN pip install --no-cache-dir uv
 
-# Copy only dependency files first (better layer caching)
 COPY pyproject.toml ./
 
-# Install dependencies to a virtual environment
 RUN uv venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    uv pip install --no-cache .
+    uv pip install --no-cache "."
 
-# Stage 2: Runtime - minimal final image
-FROM python:3.14-slim
+# =============== // STAGE 2(A) // ===============
+# ========= // STREAMLIT DEPS BUILDER // =========
+FROM base-builder AS streamlit-builder
+
+RUN . /opt/venv/bin/activate && \
+    uv pip install --no-cache ".[streamlit]"
+
+# =============== // STAGE 2(B) // ===============
+# ========= // FASTAPI DEPS BUILDER // =========
+FROM base-builder AS api-builder
+
+RUN . /opt/venv/bin/activate && \
+    uv pip install --no-cache ".[api]"
+
+# =============== // STAGE 3(A) // ===============
+# =========== // STREAMLIT RUNTIME // ============
+FROM python:3.14-slim AS streamlit
 
 WORKDIR /app
 
-# Install only runtime essentials (curl for healthcheck)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
+COPY --from=streamlit-builder /opt/venv /opt/venv
 
-# Copy application code
 COPY . .
 
-# Set PATH to use virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Create non-root user for security
-RUN useradd -m -u 1000 streamlit && \
-    chown -R streamlit:streamlit /app
-USER streamlit
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 8501
 
@@ -48,3 +57,35 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 WORKDIR /app/src
 
 ENTRYPOINT ["streamlit", "run", "main-app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+# =============== // STAGE 3(B) // ===============
+# =========== // FAST API RUNTIME // ============
+
+FROM python:3.14-slim AS api
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+
+COPY --from=api-builder /opt/venv /opt/venv
+
+COPY . .
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl --fail http://localhost:8000/ping || exit 1
+
+WORKDIR /app/src
+
+ENTRYPOINT ["fastapi", "run", "main-api.py", "--port", "8000", "--host", "0.0.0.0", "--root-path", "/api"]

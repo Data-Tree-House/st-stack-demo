@@ -10,6 +10,11 @@ REPO_DIR = SRC_DIR.parent
 
 
 class Constants(BaseSettings):
+    # =============== // METADATA // ===============
+
+    title: str = "Demo App"
+    description: str = "A demo app"
+
     # =============== // Database Configurations // ===============
     # dialect[+driver]://user:password@host/dbname[?key=value..]
     # e.g. engine = create_engine("postgresql+psycopg2://scott:tiger@localhost/test")

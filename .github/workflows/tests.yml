@@ -43,3 +43,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.os }}-py${{ matrix.python-version }}
+          codecov_yml_path: .config/codecov.ym

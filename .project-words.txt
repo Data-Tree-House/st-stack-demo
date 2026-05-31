@@ -4,11 +4,14 @@ checkfirst
 datatreehouse
 Durbanville
 ondelete
+pyproject
 selectbox
 selectinload
 sheetname
 sheetnames
 showlegend
 snapscan
+streamlit
+venv
 xaxis
 yaxis
