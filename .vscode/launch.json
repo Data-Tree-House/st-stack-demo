@@ -2,7 +2,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Streamlit: Debug Dev Mode",
+      "name": "FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "fastapi",
+      "cwd": "${workspaceFolder}/src",
+      "args": ["dev", "main-api.py"],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Streamlit",
       "type": "debugpy",
       "request": "launch",
       "module": "streamlit",

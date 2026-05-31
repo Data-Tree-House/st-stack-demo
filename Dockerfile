@@ -88,4 +88,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 
 WORKDIR /app/src
 
-ENTRYPOINT ["fastapi", "run", "main-api.py", "--port", "8000", "--host", "0.0.0.0", "--root-path", "/api"]
+ENTRYPOINT ["fastapi", "run", "main-api.py", "--port", "8000", "--host", "0.0.0.0"]

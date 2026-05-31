@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
+    root_path="/api",
     title=c.title,
     description=c.description,
     summary="",
