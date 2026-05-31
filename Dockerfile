@@ -103,14 +103,10 @@ FROM python:3.14-slim AS cli
 
 WORKDIR /app
 
-ENV SUPERCRONIC_VERSION=0.2.33
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends cron && \
     rm -rf /var/lib/apt/lists/* && \
-    apt-get clean && \
-    curl -fsSL "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-amd64" \
-        -o /usr/local/bin/supercronic && \
-    chmod +x /usr/local/bin/supercronic
+    apt-get clean
 
 COPY --from=cli-builder /opt/venv /opt/venv
 
@@ -118,4 +114,6 @@ COPY . .
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-ENTRYPOINT ["supercronic", "config/crontab"]
+RUN crontab config/crontab
+
+ENTRYPOINT ["cron", "-f"]
