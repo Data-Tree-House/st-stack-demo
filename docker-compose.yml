@@ -32,6 +32,6 @@ services:
     expose:
       - "8501"
     volumes:
-      - secrets.toml:/app/src/.streamlit/secrets.toml:ro
+      - /app/secrets.toml:/app/src/.streamlit/secrets.toml:ro
     restart: unless-stopped
     stop_grace_period: 60s
