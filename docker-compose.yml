@@ -31,5 +31,7 @@ services:
     env_file: .env
     expose:
       - "8501"
+    volumes:
+      - ./src/.streamlit/secrets.toml:/app/src/.streamlit/secrets.toml:ro
     restart: unless-stopped
     stop_grace_period: 60s
