@@ -43,7 +43,7 @@ cli = [
 [build-system]
 # setuptools with packages=[] means: resolve and install [project.dependencies],
 # but don't try to package or install any Python source as a library.
-requires = ["setuptools>=61"]
+requires = ["setuptools>=82.0.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
